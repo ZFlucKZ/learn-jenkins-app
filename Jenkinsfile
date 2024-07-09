@@ -7,6 +7,42 @@ pipeline {
     }
 
     stages {
+        stage('Build') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    ls -la
+                    node --version
+                    npm --version
+                    npm ci
+                    npm run build
+                    ls -la
+                '''
+            }
+        }
+
+        stage('Build docker image') {
+            agent {
+                docker {
+                    image 'amazon/aws-cli:2.17.9'
+                    reuseNode true
+                    args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
+                }
+            }
+
+            steps {
+                sh '''
+                    amazon-linux-extras install docker
+                    docker build -t my-jenkinsapp .'
+                '''
+            }
+        }
+
         stage('Deploy to AWS') {
             agent {
                 docker {
@@ -29,26 +65,5 @@ pipeline {
                 })
             }
         }
-
-        stage('Build') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                    ls -la
-                    node --version
-                    npm --version
-                    npm ci
-                    npm run build
-                    ls -la
-                '''
-            }
-        }
-
-        
     }
 }
