@@ -29,9 +29,9 @@ pipeline {
         stage('Build docker image') {
             agent {
                 docker {
-                    image 'amazon/aws-cli:2.17.9'
+                    image 'my-aws-cli'
                     reuseNode true
-                    args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
+                    args "-v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
                 }
             }
 
@@ -47,7 +47,7 @@ pipeline {
                 docker {
                     image 'my-aws-cli'
                     reuseNode true
-                    args "-u root --entrypoint=''"
+                    args "--entrypoint=''"
                 }
             }
 
